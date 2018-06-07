@@ -8,6 +8,8 @@
 #define DHTTYPE DHT22
 #include "math.h"
 
+#include <Adafruit_MLX90614.h>
+
 DHT dhta(DHTPINA, DHTTYPE);
 
 double calibration_factor = 0.64;
@@ -17,6 +19,8 @@ double h1;    // humidity
 double t1;    // temperature c
 double tb;
 double ta;
+
+Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
 
 char publishString[200]; //a place holer for the publish string
@@ -39,11 +43,18 @@ void setup() //run this loop just once upon start, or upon reset
   pinMode(A2, INPUT);
   pinMode(A4, INPUT);
 
+  pinMode(D2, OUTPUT); //led
+  pinMode(D3, OUTPUT); //led
   pinMode(D7, OUTPUT); //led
+
+
+  digitalWrite(D2,HIGH);
+  digitalWrite(D3,LOW);
 
   dhta.begin();
   RGB.control(true);
   RGB.color(0,0,0); //save energy yo
+  mlx.begin();
 
 }
 
@@ -60,7 +71,7 @@ void loop() //repeat this loop forever
 
     if ((an0 < 10  || an1 < 10 || an2 < 10 ) && millis()-push_counter > push_waiter)
     {
-        
+
             push_counter = millis();
             Particle.publish("YGL",triggerString);
             RGB.control(true);
@@ -81,11 +92,10 @@ void loop() //repeat this loop forever
             }
             else if (an2 < 10)
             {
-                RGB.color(   0,255,  0);
+                RGB.color(   0, 255,  0);
                 sprintf(triggerString,"{\"type\":\"trigger\",\"state\":\"good\"}");
-
             }
-            
+
             Particle.publish("YGL",triggerString);
             RGB.brightness(255);
             delay(500);
@@ -95,7 +105,7 @@ void loop() //repeat this loop forever
     }
 
     delay(10);
-    
+
     wait_counter += 1;
     if (wait_counter > samps)
     {
@@ -105,16 +115,19 @@ void loop() //repeat this loop forever
         // tb = t1;
         t1 = calibrated_value(t1, calibration_factor);
 
-        int l = analogRead(A4);
+        double amb = mlx.readAmbientTempC();
+        double finger = mlx.readObjectTempC();
 
+
+        int a4 = analogRead(A4);
         wait_counter = 0;
-        sprintf(publishString,"{\"type\":\"timer\",\"T\": %f,\"H\": %f}",t1,h1);
+        sprintf(publishString,"{\"type\":\"timer\",\"T_DHT22\": %f,\"H_DHT22\": %f,\"T_amb_MLX\": %f,\"T_sen_MLX\": %f,\"a4\":%d}",t1,h1,amb,finger,a4);
         Particle.publish("YGL",publishString);
         digitalWrite(7,1);
         delay(50);
         digitalWrite(7,0);
 
-        
+
     }
 
 }
