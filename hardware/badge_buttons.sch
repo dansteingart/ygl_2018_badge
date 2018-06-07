@@ -5320,10 +5320,19 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </net>
 <net name="N$7" class="0">
 <segment>
-<pinref part="U2" gate="G$1" pin="SCL/VZ"/>
+<pinref part="U2" gate="G$1" pin="PWM/SDA"/>
 <pinref part="U$1" gate="G$1" pin="D0"/>
-<wire x1="-2.54" y1="-22.86" x2="114.3" y2="-22.86" width="0.1524" layer="91"/>
-<wire x1="114.3" y1="-22.86" x2="114.3" y2="0" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="-27.94" x2="114.3" y2="-27.94" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="-27.94" x2="114.3" y2="0" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$8" class="0">
+<segment>
+<pinref part="U2" gate="G$1" pin="SCL/VZ"/>
+<wire x1="-2.54" y1="-22.86" x2="119.38" y2="-22.86" width="0.1524" layer="91"/>
+<wire x1="119.38" y1="-22.86" x2="119.38" y2="5.08" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="D1"/>
+<wire x1="119.38" y1="5.08" x2="114.3" y2="5.08" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
