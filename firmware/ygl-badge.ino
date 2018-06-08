@@ -1,16 +1,23 @@
-//Simple Base Code for YGL Badge
-//This code
-// - pings an attached DHT22 sensor for T/RH,
-// - pings an attached MLX90614 sensor for focussed and ambient temperature
-// - can detect whether or not it is in the badge and change sampling rate as a function thereof (for hacking)
-// - pings the powersield for battery voltage and SOC
-// - allows for comfort signaling via three buttons
-// - samples for A4 for voltage divider demo
-// - send JSON formatted code is sent via the YGL event
+// Base Code for YGL Badge
+// Author: Dan Steingart
+// Date Started: 2018-03-25
+// Date Last Modified: 2018-06-08
 
-// ** as of 2018-06-08 there is noise in the A4 signal on a breadboard, likely due to a lack of pull up resistors.
-// because we are awesome we just use a rolling_mean on the data set to pretend it's not there.
+/*
 
+This code
+  - pings an attached DHT22 sensor for T/RH,
+  - pings an attached MLX90614 sensor for focussed and ambient temperature
+  - can detect whether or not it is in the badge and change sampling rate as a function thereof (for hacking)
+  - pings the powersield for battery voltage and SOC
+  - allows for comfort signaling via three buttons
+  - samples for A4 for voltage divider demo
+  - send JSON formatted code is sent via the YGL event
+
+  ** as of 2018-06-08 there is noise in the A4 signal on a breadboard, likely due to a lack of pull up resistors.
+  *** Because we are awesome we just use a rolling_mean on the data set to pretend it's not there.
+
+*/
 
 #include "DHT.h"
 #define DHTPINA A0  // Digital pin D2
