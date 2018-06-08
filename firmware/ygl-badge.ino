@@ -1,8 +1,17 @@
 //Simple Base Code for YGL Badge
-//This code pings an attached 1 one DHT sensor for T/RH, and allows for comfort signaling via three buttons
-//JSON formatted code is sent via the YGL event
+//This code
+// - pings an attached DHT22 sensor for T/RH,
+// - pings an attached MLX90614 sensor for focussed and ambient temperature
+// - can detect whether or not it is in the badge and change sampling rate as a function thereof (for hacking)
+// - pings the powersield for battery voltage and SOC
+// - allows for comfort signaling via three buttons
+// - samples for A4 for voltage divider demo
+// - send JSON formatted code is sent via the YGL event
 
-// This #include statement was automatically added by the Particle IDE.
+// ** as of 2018-06-08 there is noise in the A4 signal on a breadboard, likely due to a lack of pull up resistors.
+// because we are awesome we just use a rolling_mean on the data set to pretend it's not there.
+
+
 #include "DHT.h"
 #define DHTPINA A0  // Digital pin D2
 #define DHTTYPE DHT22
@@ -71,13 +80,14 @@ float calibrated_value(float input, float factor) {
 void loop() //repeat this loop forever
 {
 
-    int an1 = analogRead(3);
-    int an2 = analogRead(1);
-    int an0 = analogRead(2);
-    int an6 = analogRead(6);
-    bool badge = false;
+    //badge ADCS
+    int an1 = analogRead(3); //button
+    int an2 = analogRead(1); //button
+    int an0 = analogRead(2); //button
+    int an6 = analogRead(6); //badge detect if shorted to gnd.
 
     //detect badge yes/no
+    bool badge = false;
     if (an6 < 20) badge = true;
     else badge = false;
 
@@ -141,7 +151,7 @@ void loop() //repeat this loop forever
 
 
         float a4 = 0;
-        int lim = 20;
+        int lim = 1;
         for (int i = 0; i < lim;i++) a4 = a4 + analogRead(A4);
         a4 = a4/lim;
 
