@@ -8,7 +8,9 @@
 #define DHTTYPE DHT22
 #include "math.h"
 
-#include <Adafruit_MLX90614.h>
+#include "Adafruit_MLX90614.h"
+#include "PowerShield.h"
+
 
 DHT dhta(DHTPINA, DHTTYPE);
 
@@ -21,13 +23,14 @@ double tb;
 double ta;
 
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
+PowerShield batteryMonitor;
 
 
 char publishString[200]; //a place holer for the publish string
 char triggerString[200]; //a place holer for the publish string
 
-int waiter = 1000; //in ms
-int samps = 1000; //sampler counter for smooth smoothness
+int waiter = 10; //in ms
+int samps = 100; //ticks before timed send (waiter*samps = ms )
 int push_waiter = 2000;
 long push_counter = 0;
 long wait_counter = 0;
@@ -42,6 +45,7 @@ void setup() //run this loop just once upon start, or upon reset
   pinMode(A1, INPUT);
   pinMode(A2, INPUT);
   pinMode(A4, INPUT);
+  pinMode(A6, INPUT);
 
   pinMode(D2, OUTPUT); //led
   pinMode(D3, OUTPUT); //led
@@ -54,7 +58,9 @@ void setup() //run this loop just once upon start, or upon reset
   dhta.begin();
   RGB.control(true);
   RGB.color(0,0,0); //save energy yo
+
   mlx.begin();
+  batteryMonitor.begin();
 
 }
 
@@ -68,6 +74,16 @@ void loop() //repeat this loop forever
     int an1 = analogRead(3);
     int an2 = analogRead(1);
     int an0 = analogRead(2);
+    int an6 = analogRead(6);
+    bool badge = false;
+
+    //detect badge yes/no
+    if (an6 < 20) badge = true;
+    else badge = false;
+
+    //if we're in the badge, send less to power save
+    if (badge) samps = 1000;
+    else samps = 100;
 
     if ((an0 < 10  || an1 < 10 || an2 < 10 ) && millis()-push_counter > push_waiter)
     {
@@ -104,7 +120,7 @@ void loop() //repeat this loop forever
             //RGB.control(false);
     }
 
-    delay(10);
+    delay(waiter);
 
     wait_counter += 1;
     if (wait_counter > samps)
@@ -119,9 +135,18 @@ void loop() //repeat this loop forever
         double finger = mlx.readObjectTempC();
 
 
-        int a4 = analogRead(A4);
+        float cellVoltage = batteryMonitor.getVCell();
+        // Read the State of Charge of the LiPo
+        float stateOfCharge = batteryMonitor.getSoC();
+
+
+        float a4 = 0;
+        int lim = 20;
+        for (int i = 0; i > lim;i++) a4+=analogRead(A4);
+        a4 = a4/lim;
+
         wait_counter = 0;
-        sprintf(publishString,"{\"type\":\"timer\",\"T_DHT22\": %f,\"H_DHT22\": %f,\"T_amb_MLX\": %f,\"T_sen_MLX\": %f,\"a4\":%d}",t1,h1,amb,finger,a4);
+        sprintf(publishString,"{\"type\":\"timer\",\"T_DHT22\": %f,\"H_DHT22\": %f,\"T_amb_MLX\": %f,\"T_sen_MLX\": %f,\"a4\":%f,\"V_batt\":%f,\"SOC_batt\":%f}",t1,h1,amb,finger,a4,cellVoltage,stateOfCharge);
         Particle.publish("YGL",publishString);
         digitalWrite(7,1);
         delay(50);
