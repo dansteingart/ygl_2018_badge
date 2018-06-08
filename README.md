@@ -10,4 +10,6 @@ The board can be editted in [Eagle](https://www.autodesk.com/products/eagle/free
 
 The code for this is meant to be uploaded through the [build.particle.io](https://build.particle.io), but can also be compiled and sent remotely.
 
+## Theory of Operation
 
+The [theory of operation document](theory_of_operation.ipynb) describes how and why this all works.
