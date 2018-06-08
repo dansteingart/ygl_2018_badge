@@ -88,9 +88,9 @@ void loop() //repeat this loop forever
 {
 
     //badge ADCS
-    int an1 = analogRead(3); //button
-    int an2 = analogRead(1); //button
-    int an0 = analogRead(2); //button
+    int an1 = analogRead(3); //Red button
+    int an2 = analogRead(1); //Blue button
+    int an0 = analogRead(2); //Green button 
     int an6 = analogRead(6); //badge detect if shorted to gnd.
 
     //detect badge yes/no
@@ -113,19 +113,19 @@ void loop() //repeat this loop forever
 
             if      (an0 < 10)
             {
-                RGB.color(255,  0,  0);
+                RGB.color(0,  255,  0);
                 sprintf(triggerString,"{\"type\":\"trigger\",\"state\":\"hot\"}");
 
             }
             else if (an1 < 10)
             {
-                RGB.color(0,   0,  255);
+                RGB.color(255,   0,  0);
                 sprintf(triggerString,"{\"type\":\"trigger\",\"state\":\"cold\"}");
 
             }
             else if (an2 < 10)
             {
-                RGB.color(   0, 255,  0);
+                RGB.color(   0, 0,  255);
                 sprintf(triggerString,"{\"type\":\"trigger\",\"state\":\"good\"}");
             }
 
