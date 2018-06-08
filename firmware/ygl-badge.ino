@@ -142,7 +142,7 @@ void loop() //repeat this loop forever
 
         float a4 = 0;
         int lim = 20;
-        for (int i = 0; i > lim;i++) a4+=analogRead(A4);
+        for (int i = 0; i < lim;i++) a4 = a4 + analogRead(A4);
         a4 = a4/lim;
 
         wait_counter = 0;
