@@ -162,7 +162,6 @@
 <wire x1="95.35" y1="4.65" x2="95.6" y2="68.15" width="0" layer="20"/>
 <wire x1="95.6" y1="68.15" x2="3.6" y2="68.25" width="0" layer="20"/>
 <wire x1="3.6" y1="68.25" x2="3.35" y2="4.75" width="0" layer="20"/>
-<text x="60.45" y="27.2" size="1.016" layer="1">Vin</text>
 </plain>
 <libraries>
 <library name="SparkFun-Retired">
