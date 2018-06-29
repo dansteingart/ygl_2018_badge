@@ -68,15 +68,18 @@ void setup() //run this loop just once upon start, or upon reset
   pinMode(D7, OUTPUT); //led
 
 
-  digitalWrite(D2,HIGH);
-  digitalWrite(D3,LOW);
+  digitalWrite(D2,LOW);
+  digitalWrite(D3,HIGH);
 
   dhta.begin();
-  RGB.control(true);
-  RGB.color(0,0,0); //save energy yo
 
   mlx.begin();
   batteryMonitor.begin();
+  RGB.control(true);
+  // RGB.color(255,255,255);
+  RGB.color(0,0,0);
+  RGB.brightness(0);
+
 
 }
 
@@ -99,7 +102,7 @@ void loop() //repeat this loop forever
     else badge = false;
 
     //if we're in the badge, send less to power save
-    if (badge) samps = 1000;
+    if (badge) samps = 100;
     else samps = 100;
 
     if ((an0 < 10  || an1 < 10 || an2 < 10 ) && millis()-push_counter > push_waiter)
@@ -132,6 +135,9 @@ void loop() //repeat this loop forever
             Particle.publish("YGL",triggerString);
             RGB.brightness(255);
             delay(500);
+            // RGB.color(255,255,255);
+            // RGB.brightness(255);
+            RGB.color(0,0,0);
             RGB.brightness(0);
 
             //RGB.control(false);
