@@ -1,9 +1,10 @@
 // Base Code for YGL Badge
 // Author: Dan Steingart
 // Date Started: 2018-03-25
-// Date Last Modified: 2018-06-08
+// Date Last Modified: 2018-07-02
 
 /*
+
 
 This code
   - pings an attached DHT22 sensor for T/RH,
@@ -18,6 +19,10 @@ This code
   *** Because we are awesome we just use a rolling_mean on the data set to pretend it's not there.
 
 */
+
+PRODUCT_ID(7743);
+PRODUCT_VERSION(1);
+
 
 #include "DHT.h"
 #define DHTPINA A0  // Digital pin D2
@@ -112,25 +117,41 @@ void loop() //repeat this loop forever
             Particle.publish("YGL",triggerString);
             RGB.control(true);
 
-            String state = "";
+            h1 = dhta.readHumidity();
+            t1 = dhta.readTemperature(false);
+            t1 = calibrated_value(t1, calibration_factor);
 
-            if      (an0 < 10)
+            double amb = mlx.readAmbientTempC();
+            double finger = mlx.readObjectTempC();
+
+            float a4 = 0;
+
+            wait_counter = 0;
+
+
+            int state = 42;
+
+            if  (an0 < 10)
             {
                 RGB.color(0,  255,  0);
-                sprintf(triggerString,"{\"type\":\"trigger\",\"state\":\"hot\"}");
+                state = 1;
+                //sprintf(triggerString,"{\"type\":\"trigger\",\"state\":\"good\"}");
 
             }
             else if (an1 < 10)
             {
                 RGB.color(255,   0,  0);
-                sprintf(triggerString,"{\"type\":\"trigger\",\"state\":\"cold\"}");
-
+                //sprintf(triggerString,"{\"type\":\"trigger\",\"state\":\"hot\"}");
+                state = 0;
             }
             else if (an2 < 10)
             {
                 RGB.color(   0, 0,  255);
-                sprintf(triggerString,"{\"type\":\"trigger\",\"state\":\"good\"}");
+                //sprintf(triggerString,"{\"type\":\"trigger\",\"state\":\"cold\"}");
+                state = 2;
             }
+
+            sprintf(publishString,"{\"type\":\"trigger\",\"T_DHT22\": %f,\"H_DHT22\": %f,\"T_amb_MLX\": %f,\"T_sen_MLX\": %f,\"a4\":%f,\"state\":%d}",t1,h1,amb,finger,a4,state);
 
             Particle.publish("YGL",triggerString);
             RGB.brightness(255);
@@ -149,19 +170,11 @@ void loop() //repeat this loop forever
     if (wait_counter > samps)
     {
         h1 = dhta.readHumidity();
-        // Read Temperature and correct it
         t1 = dhta.readTemperature(false);
-        // tb = t1;
         t1 = calibrated_value(t1, calibration_factor);
 
         double amb = mlx.readAmbientTempC();
         double finger = mlx.readObjectTempC();
-
-
-        float cellVoltage = batteryMonitor.getVCell();
-        // Read the State of Charge of the LiPo
-        float stateOfCharge = batteryMonitor.getSoC();
-
 
         float a4 = 0;
         int lim = 1;
@@ -169,7 +182,7 @@ void loop() //repeat this loop forever
         a4 = a4/lim;
 
         wait_counter = 0;
-        sprintf(publishString,"{\"type\":\"timer\",\"T_DHT22\": %f,\"H_DHT22\": %f,\"T_amb_MLX\": %f,\"T_sen_MLX\": %f,\"a4\":%f,\"V_batt\":%f,\"SOC_batt\":%f}",t1,h1,amb,finger,a4,cellVoltage,stateOfCharge);
+        sprintf(publishString,"{\"type\":\"timer\",\"T_DHT22\": %f,\"H_DHT22\": %f,\"T_amb_MLX\": %f,\"T_sen_MLX\": %f,\"a4\":%f}",t1,h1,amb,finger,a4);
         Particle.publish("YGL",publishString);
         digitalWrite(7,1);
         delay(50);
