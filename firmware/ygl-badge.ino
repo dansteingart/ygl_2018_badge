@@ -107,7 +107,7 @@ void loop() //repeat this loop forever
     else badge = false;
 
     //if we're in the badge, send less to power save
-    if (badge) samps = 100;
+    if (badge) samps = 500; // 500 to avoid DHT heating
     else samps = 100;
 
     if ((an0 < 10  || an1 < 10 || an2 < 10 ) && millis()-push_counter > push_waiter)
@@ -152,14 +152,13 @@ void loop() //repeat this loop forever
             }
 
             sprintf(publishString,"{\"type\":\"trigger\",\"T_DHT22\": %f,\"H_DHT22\": %f,\"T_amb_MLX\": %f,\"T_sen_MLX\": %f,\"a4\":%f,\"state\":%d}",t1,h1,amb,finger,a4,state);
-
-            Particle.publish("YGL",triggerString);
+            Particle.publish("YGL",publishString);
             RGB.brightness(255);
             delay(500);
             // RGB.color(255,255,255);
             // RGB.brightness(255);
-            RGB.color(0,0,0);
-            RGB.brightness(0);
+            //RGB.color(0,0,0);
+            RGB.brightness(10);
 
             //RGB.control(false);
     }
@@ -169,12 +168,19 @@ void loop() //repeat this loop forever
     wait_counter += 1;
     if (wait_counter > samps)
     {
-        h1 = dhta.readHumidity();
-        t1 = dhta.readTemperature(false);
-        t1 = calibrated_value(t1, calibration_factor);
+        h1 = 0;
+        t1 = 0;
+        double amb = 0;
+        double finger = 0;
 
-        double amb = mlx.readAmbientTempC();
-        double finger = mlx.readObjectTempC();
+        if (badge)
+        {
+          h1 = dhta.readHumidity();
+          t1 = dhta.readTemperature(false);
+          t1 = calibrated_value(t1, calibration_factor);
+          amb = mlx.readAmbientTempC();
+          finger = mlx.readObjectTempC();
+        }
 
         float a4 = 0;
         int lim = 1;
